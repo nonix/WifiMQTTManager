@@ -48,7 +48,6 @@ class WiFiMQTTManager {
     //void _subscriptionCallback(char* topicIn, byte* message, unsigned int length);
     //void (*_subscriptionCallback)(char* topicIn, byte* message, unsigned int length);
     int _resetPin;
-//    char _friendly_name[40];
     char _mqtt_server[40];
     char _mqtt_port[6];
     String _sketchName;
