@@ -223,11 +223,10 @@ void WiFiMQTTManager::_checkButton() {
       if( digitalRead(_resetPin) == LOW ){
         Serial.println("WMM: button held...");
         Serial.println("WMM: erasing config, restarting...");
-        wm->resetSettings();
-        ESP.restart();
+        _settingsAP();
       }
-
-      _settingsAP();
+      Serial.println("WMM: restarting...");
+      ESP.restart();
       return;
 
     }
