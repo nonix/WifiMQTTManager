@@ -2,7 +2,7 @@
   WiFiMQTTManager.cpp - Library for the ESP8266/ESP32 Arduino platform
   for configuration of WiFi and MQTT credentials using a Captive Portal
   Written by David Reed hashmark47@gmail.com
-  GNU license  
+  GNU license
 */
 #include "WiFiMQTTManager.h"
 
@@ -10,7 +10,7 @@ WiFiManager *wm;
 
 WiFiMQTTManager::WiFiMQTTManager(int resetPin, char* APpassword) {
   wm = new WiFiManager;
-  
+
   lastMsg = 0;
   formatFS = false;
   _APpassword = APpassword;
@@ -26,15 +26,15 @@ WiFiMQTTManager::WiFiMQTTManager(int resetPin, char* APpassword) {
   void _placeholderSubscibeTo();
   subscribeTo = _placeholderSubscibeTo;
   void _subscriptionCallback(char* topicIn, byte* message, unsigned int length);
-  subscriptionCallback = _subscriptionCallback; 
+  subscriptionCallback = _subscriptionCallback;
   wm->setDebugOutput(false);
-  pinMode(resetPin, INPUT);
+  pinMode(resetPin, INPUT_PULLUP);
   _resetPin = resetPin;
-  #ifdef ESP32 
+  #ifdef ESP32
     strcpy(deviceType, "ESP32");
-  #elif defined(ESP8266) 
+  #elif defined(ESP8266)
     strcpy(deviceType, "ESP8266");
-  #else 
+  #else
     strcpy(deviceType, "UNKNOWN");
   #endif
 
@@ -44,7 +44,7 @@ void WiFiMQTTManager::loop() {
   _checkButton();
   if (!client->connected()) {
     _reconnect();
-  }  
+  }
   client->loop();
 }
 
@@ -84,7 +84,7 @@ void WiFiMQTTManager::setup(String sketchName) {
   wm->addParameter(&custom_mqtt_server);
   wm->addParameter(&custom_mqtt_port);
   //wm->addParameter(&custom_mqtt_username);
-  //wm->addParameter(&custom_mqtt_password); 
+  //wm->addParameter(&custom_mqtt_password);
 
   wm->setAPCallback([&](WiFiManager *myWiFiManager) {
     Serial.println("WMM: entering config mode...");
@@ -110,7 +110,7 @@ void WiFiMQTTManager::setup(String sketchName) {
   strcpy(_mqtt_port, custom_mqtt_port.getValue());
   //strcpy(_mqtt_username, custom_mqtt_username.getValue());
   //strcpy(_mqtt_password, custom_mqtt_password.getValue());
-  
+
   //save the custom parameters to FS
   if (_shouldSaveConfig) {
     Serial.println("WMM: saving config...");
@@ -136,7 +136,7 @@ void WiFiMQTTManager::setup(String sketchName) {
   Serial.println("WMM: ");
   Serial.print("WMM: local IP:");
   Serial.println(WiFi.localIP());
-  
+
   unsigned short port = (unsigned short) strtoul(_mqtt_port, NULL, 0);
 
   Serial.print("WMM: _mqtt_server: ");
@@ -156,7 +156,7 @@ void WiFiMQTTManager::setup(String sketchName) {
     delay(3000);
     wm->resetSettings();
     ESP.restart();
-    delay(5000);      
+    delay(5000);
   } else {
     Serial.println("mqtt connected...via setup...");
     subscribeTo();
@@ -245,7 +245,7 @@ void WiFiMQTTManager::_reconnect() {
       // Subscribe
       subscribeTo();
       _subscribeToServices();
-      client->setCallback(subscriptionCallback);      
+      client->setCallback(subscriptionCallback);
       //client->subscribe("switch/esp1234/led1/output");
     } else {
       Serial.print("mqtt connect failed, rc=");
@@ -265,7 +265,7 @@ void WiFiMQTTManager::_registerDevice() {
 
   StaticJsonBuffer<2000> JSONbuffer;
   JsonObject& root = JSONbuffer.createObject();
-  
+
   //Serial.println(WiFi.macAddress());
 
   //root["time"] = 1351824120;
@@ -274,11 +274,11 @@ void WiFiMQTTManager::_registerDevice() {
   root["name"] = _friendly_name;
   root["chipId"] = chipId;
   root["sketchName"] = _sketchName;
- 
+
   char topic[200];
   char messageBuffer[2000];
   snprintf(topic, sizeof(topic), "%s%s", "deviceLog/", deviceId);
-  
+
   root.printTo(messageBuffer, sizeof(messageBuffer));
 
   Serial.print("Sending message to MQTT topic: ");
@@ -309,25 +309,25 @@ void WiFiMQTTManager::_subscribeToServices() {
 void _settingsAP() {
   // start portal w delay
   Serial.println("WMM: starting config portal...");
-  
+
   wm->resetSettings();
   ESP.restart();
 
 }
 
 void _subscriptionCallback(char* topicIn, byte* message, unsigned int length) {
-  //Serial.println("WMM: _subscriptionCallback called..."); 
+  //Serial.println("WMM: _subscriptionCallback called...");
   Serial.print("WMM: Message arrived on topic: ");
   Serial.print(topicIn);
   Serial.print(". Message: ");
   String messageTemp;
-  
+
   for (int i = 0; i < length; i++) {
     Serial.print((char)message[i]);
     messageTemp += (char)message[i];
   }
   Serial.println();
-  
+
   if (messageTemp == "restart") {
     Serial.println("RESTARTING NOW!!!!");
     ESP.restart();
@@ -344,5 +344,5 @@ void _subscriptionCallback(char* topicIn, byte* message, unsigned int length) {
   if (messageTemp == "settingsAP") {
     Serial.println("STARTING Settings AP NOW!!!!");
     _settingsAP();
-  }  
+  }
 }
