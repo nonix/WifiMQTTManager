@@ -75,7 +75,7 @@ void WiFiMQTTManager::setup(String sketchName) {
   });
   wm->setClass("invert"); // dark theme
 
-  WiFiManagerParameter custom_friendly_name("name", "Friendly Name", _friendly_name, 40);
+  WiFiManagerParameter custom_friendly_name("name", "Friendly Name", friendlyName, 40);
   WiFiManagerParameter custom_mqtt_server("server", "MQTT Server", _mqtt_server, 40);
   WiFiManagerParameter custom_mqtt_port("port", "MQTT Port", _mqtt_port, 6);
   //WiFiManagerParameter custom_mqtt_username("username", "mqtt username", _mqtt_username, 40);
@@ -105,7 +105,7 @@ void WiFiMQTTManager::setup(String sketchName) {
   Serial.println("WMM: connected to WiFi!!...");
 
   //read updated parameters
-  strcpy(_friendly_name, custom_friendly_name.getValue());
+  strcpy(friendlyName, custom_friendly_name.getValue());
   strcpy(_mqtt_server, custom_mqtt_server.getValue());
   strcpy(_mqtt_port, custom_mqtt_port.getValue());
   //strcpy(_mqtt_username, custom_mqtt_username.getValue());
@@ -116,7 +116,7 @@ void WiFiMQTTManager::setup(String sketchName) {
     Serial.println("WMM: saving config...");
     DynamicJsonBuffer jsonBuffer;
     JsonObject& json = jsonBuffer.createObject();
-    json["friendly_name"] = _friendly_name;
+    json["friendly_name"] = friendlyName;
     json["mqtt_server"] = _mqtt_server;
     json["mqtt_port"]   = _mqtt_port;
     //json["mqtt_username"]   = _mqtt_username;
@@ -194,7 +194,7 @@ void WiFiMQTTManager::_setupSpiffs(){
         json.printTo(Serial);
         if (json.success()) {
           Serial.println("\nWMM: parsed json...");
-          strcpy(_friendly_name, json["friendly_name"]);
+          strcpy(friendlyName, json["friendly_name"]);
           strcpy(_mqtt_server, json["mqtt_server"]);
           strcpy(_mqtt_port, json["mqtt_port"]);
           //strcpy(_mqtt_username, json["mqtt_username"]);
@@ -271,7 +271,7 @@ void WiFiMQTTManager::_registerDevice() {
   //root["time"] = 1351824120;
   root["deviceType"] = deviceType;
   root["deviceId"] = deviceId;
-  root["name"] = _friendly_name;
+  root["name"] = friendlyName;
   root["chipId"] = chipId;
   root["sketchName"] = _sketchName;
 

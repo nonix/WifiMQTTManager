@@ -2,7 +2,7 @@
   WiFiMQTTManager.h - Library for the ESP8266/ESP32 Arduino platform
   for configuration of WiFi and MQTT credentials using a AP mode and Captive Portal
   Written by David Reed hashmark47@gmail.com
-  GNU license  
+  GNU license
 */
 #ifndef WiFiMQTTManager_h
 #define WiFiMQTTManager_h
@@ -33,6 +33,7 @@ class WiFiMQTTManager {
     char clientId[40];
     char deviceId[40];
     char chipId[40];
+    char friendlyName[40];
     void (*subscribeTo)();
     void (*subscriptionCallback)(char* topicIn, byte* message, unsigned int length);
     bool formatFS;
@@ -47,7 +48,7 @@ class WiFiMQTTManager {
     //void _subscriptionCallback(char* topicIn, byte* message, unsigned int length);
     //void (*_subscriptionCallback)(char* topicIn, byte* message, unsigned int length);
     int _resetPin;
-    char _friendly_name[40];
+//    char _friendly_name[40];
     char _mqtt_server[40];
     char _mqtt_port[6];
     String _sketchName;
@@ -58,7 +59,7 @@ class WiFiMQTTManager {
     long _lastMsg;
     char _msg[50];
     int _value;
-    bool _shouldSaveConfig;  
+    bool _shouldSaveConfig;
     WiFiClient _espClient;
 
 };
