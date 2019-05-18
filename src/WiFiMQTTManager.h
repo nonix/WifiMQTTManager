@@ -21,6 +21,8 @@
 #endif
 
 void _settingsAP();
+void _subscriptionCallback(char* topicIn, byte* message, unsigned int length);
+void subscriptionCallback(char* topicIn, byte* message, unsigned int length);
 
 class WiFiMQTTManager {
   public:
@@ -35,7 +37,8 @@ class WiFiMQTTManager {
     char chipId[40];
     char friendlyName[40];
     void (*subscribeTo)();
-    void (*subscriptionCallback)(char* topicIn, byte* message, unsigned int length);
+//    void (*subscriptionCallback)(char* topicIn, byte* message, unsigned int length);
+//    void (*subscriptionCallback)(char*, byte*, unsigned int);
     bool formatFS;
     long lastMsg;
     char deviceType[40];

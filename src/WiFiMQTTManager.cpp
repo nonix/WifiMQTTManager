@@ -25,8 +25,8 @@ WiFiMQTTManager::WiFiMQTTManager(int resetPin, char* APpassword) {
   Serial.begin(115200);
   void _placeholderSubscibeTo();
   subscribeTo = _placeholderSubscibeTo;
-  void _subscriptionCallback(char* topicIn, byte* message, unsigned int length);
-  subscriptionCallback = _subscriptionCallback;
+  // void _placeholderCallback(char* topicIn, byte* message, unsigned int length);
+  // subscriptionCallback = _placeholderCallback;
   wm->setDebugOutput(false);
   pinMode(resetPin, INPUT_PULLUP);
   _resetPin = resetPin;
@@ -161,7 +161,7 @@ void WiFiMQTTManager::setup(String sketchName) {
     Serial.println("mqtt connected...via setup...");
     subscribeTo();
     _subscribeToServices();
-    client->setCallback(subscriptionCallback);
+    client->setCallback(_subscriptionCallback);
   }
   _registerDevice();
 }
@@ -244,7 +244,7 @@ void WiFiMQTTManager::_reconnect() {
       // Subscribe
       subscribeTo();
       _subscribeToServices();
-      client->setCallback(subscriptionCallback);
+      //client->setCallback(_subscriptionCallback);
       //client->subscribe("switch/esp1234/led1/output");
     } else {
       Serial.print("mqtt connect failed, rc=");
@@ -299,9 +299,13 @@ void _placeholderSubscibeTo() {
   Serial.println("WMM: ....placeholderSubscibeTo called...");
 }
 
+void _placeholderCallback(char* topicIn, byte* message, unsigned int length) {
+  Serial.println("WMM: ....placeholderCallback...");
+}
+
 void WiFiMQTTManager::_subscribeToServices() {
   char topic[100];
-  snprintf(topic, sizeof(topic), "%s%s", "service/", deviceId);
+  snprintf(topic, sizeof(topic), "service/%s", deviceId);
   client->subscribe(topic);
 }
 
@@ -315,33 +319,34 @@ void _settingsAP() {
 }
 
 void _subscriptionCallback(char* topicIn, byte* message, unsigned int length) {
-  //Serial.println("WMM: _subscriptionCallback called...");
-  Serial.print("WMM: Message arrived on topic: ");
+  Serial.print("WMM: Message arrived on topic[");
   Serial.print(topicIn);
-  Serial.print(". Message: ");
+  Serial.print("] Message: ");
   String messageTemp;
 
-  for (int i = 0; i < length; i++) {
-    Serial.print((char)message[i]);
-    messageTemp += (char)message[i];
-  }
-  Serial.println();
+  for (int i = 0; i < length; i++) messageTemp += (char)message[i];
 
-  if (messageTemp == "restart") {
-    Serial.println("RESTARTING NOW!!!!");
-    ESP.restart();
-  }
+  Serial.println(messageTemp);
 
-  if (messageTemp == "format FS") {
-    Serial.println("FORMATTING FS NOW!!!!");
-    Serial.print("WMM: formatting FS...please wait..... ");
-    //clean FS, for testing
-    SPIFFS.format();
-    ESP.restart();
-  }
+  if (strncmp(topicIn,"service/",8) == 0) {
+    if (messageTemp == "restart") {
+      Serial.println("RESTARTING NOW!!!!");
+      ESP.restart();
+    }
 
-  if (messageTemp == "settingsAP") {
-    Serial.println("STARTING Settings AP NOW!!!!");
-    _settingsAP();
+    if (messageTemp == "format FS") {
+      Serial.println("FORMATTING FS NOW!!!!");
+      Serial.print("WMM: formatting FS...please wait..... ");
+      //clean FS, for testing
+      SPIFFS.format();
+      ESP.restart();
+    }
+
+    if (messageTemp == "settingsAP") {
+      Serial.println("STARTING Settings AP NOW!!!!");
+      _settingsAP();
+    }
+  } else {
+    subscriptionCallback(topicIn, message, length);
   }
 }
